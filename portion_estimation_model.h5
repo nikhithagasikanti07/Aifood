@@ -1,0 +1,95 @@
+import os
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D
+from tensorflow.keras.optimizers import Adam
+
+# Set random seeds for reproducibility
+np.random.seed(42)
+tf.random.set_seed(42)
+
+# Configurations
+IMAGE_SIZE = (224, 224)
+BATCH_SIZE = 32
+EPOCHS = 20
+NUM_CLASSES = 3  # Small, Medium, Large
+
+# Paths
+train_dir = 'data/portion/train'
+val_dir = 'data/portion/val'
+
+# Make sure these folders exist and are structured like:
+# data/portion/train/Small/
+# data/portion/train/Medium/
+# data/portion/train/Large/
+# data/portion/val/Small/
+# data/portion/val/Medium/
+# data/portion/val/Large/
+
+# Data augmentation and loading
+train_datagen = ImageDataGenerator(
+    rescale=1./255,
+    rotation_range=15,
+    zoom_range=0.1,
+    width_shift_range=0.1,
+    height_shift_range=0.1,
+    horizontal_flip=True
+)
+
+val_datagen = ImageDataGenerator(
+    rescale=1./255
+)
+
+train_generator = train_datagen.flow_from_directory(
+    train_dir,
+    target_size=IMAGE_SIZE,
+    batch_size=BATCH_SIZE,
+    class_mode='categorical'
+)
+
+val_generator = val_datagen.flow_from_directory(
+    val_dir,
+    target_size=IMAGE_SIZE,
+    batch_size=BATCH_SIZE,
+    class_mode='categorical'
+)
+
+# Model architecture
+model = Sequential([
+    Conv2D(32, (3, 3), activation='relu', input_shape=(224, 224, 3)),
+    MaxPooling2D(2, 2),
+    
+    Conv2D(64, (3, 3), activation='relu'),
+    MaxPooling2D(2, 2),
+
+    Conv2D(128, (3, 3), activation='relu'),
+    MaxPooling2D(2, 2),
+    
+    Flatten(),
+    Dense(128, activation='relu'),
+    Dropout(0.5),
+    Dense(NUM_CLASSES, activation='softmax')
+])
+
+# Compile model
+model.compile(
+    optimizer=Adam(learning_rate=0.0001),
+    loss='categorical_crossentropy',
+    metrics=['accuracy']
+)
+
+# Summary
+model.summary()
+
+# Train model
+history = model.fit(
+    train_generator,
+    epochs=EPOCHS,
+    validation_data=val_generator
+)
+
+# Save model
+model.save('portion_estimation_model.h5')
+print("✅ Model saved as portion_estimation_model.h5")

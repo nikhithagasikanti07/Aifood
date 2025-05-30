@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Diet Plan - SNACKALYZER</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"> <style>
+        /* Add specific styles for this page or embed them */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url('../static/images/so.jpg') no-repeat center center fixed; /* Using your background image */
+            background-size: cover;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center horizontally */
+            padding-top: 20px; /* Add some top padding */
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9); /* White background with transparency */
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            width: 90%;
+            max-width: 800px;
+            box-sizing: border-box;
+            color: black; /* Text color for the content */
+            margin-bottom: 20px; /* Space from the bottom */
+        }
+        h1, h2 {
+            color: #333;
+            text-align: center;
+        }
+        ul {
+            list-style-type: disc;
+            margin-left: 20px;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        .recommendation-box {
+            background-color: #e0f7fa; /* Light blue background */
+            border: 1px solid #00bcd4; /* Cyan border */
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        .recommendation-box h3 {
+            color: #00796b; /* Darker green for heading */
+            margin-bottom: 10px;
+        }
+        .recommendation-box p {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .recommendation-box a {
+            display: inline-block;
+            background-color: #00cec9; /* Your button color from nav */
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .recommendation-box a:hover {
+            background-color: #00a89d;
+        }
+        .home-button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .home-button {
+            background-color: #4CAF50; /* Green */
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+            text-decoration: none; /* For the anchor tag */
+        }
+        .home-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <header></header> <nav>
+        <a href="/menua">Home</a>
+        <a href="/healtha">Health</a> 
+        <a href="/sola">Solution</a> 
+        <a href="/predicta">Image</a>
+        <a href="/predictb">Text</a>
+        <a href="/predictc">History</a>
+        <a href="/abouta">About</a> 
+        <a href="/logouta">Logout</a>
+    </nav>
+
+    <div class="container">
+        <h1>{{ diet_plan.title if diet_plan and diet_plan.title else 'Your Diet Plan' }}</h1>
+
+        {% if diet_plan and diet_plan.details %}
+            <ul>
+                {% for detail in diet_plan.details %}
+                    <li>{{ detail }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No diet plan generated yet. Please fill out the health questionnaire.</p>
+        {% endif %}
+
+        <div class="recommendation-box">
+            <h3>Want more detailed tracking and support?</h3>
+            <p>We recommend **MyFitnessPal** for comprehensive calorie and macro tracking, a vast food database, and community features.</p>
+            <a href="https://www.myfitnesspal.com/" target="_blank" rel="noopener noreferrer">Go to MyFitnessPal Website</a>
+            <p style="font-size: 0.9em; margin-top: 10px;">(This link will open in a new tab.)</p>
+        </div>
+
+        <div class="home-button-container">
+            <a href="/menua" class="home-button">Back to Home Page</a>
+        </div>
+    </div>
+
+    <script>
+        // Retrieve data from session storage (as sent from Flask)
+        // This is a workaround if you're not passing the 'diet_plan' object
+        // directly from Flask render_template.
+        // If Flask renders it directly, this JS is not strictly needed for display.
+        const dietPlanTitle = sessionStorage.getItem('dietPlanTitle');
+        const dietPlanDetails = JSON.parse(sessionStorage.getItem('dietPlanDetails'));
+
+        if (dietPlanTitle && dietPlanDetails) {
+            document.querySelector('.container h1').textContent = dietPlanTitle;
+            const ul = document.querySelector('.container ul');
+            ul.innerHTML = ''; // Clear existing
+            dietPlanDetails.forEach(detail => {
+                const li = document.createElement('li');
+                li.textContent = detail;
+                ul.appendChild(li);
+            });
+        }
+    </script>
+</body>
+</html>
